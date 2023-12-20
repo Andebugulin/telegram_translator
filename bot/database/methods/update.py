@@ -5,8 +5,8 @@ import random
 
 
 # Function to add a new user if they don't exist
-def add_new_user(user_id):
-    conn = sqlite3.connect('translator.db')
+def add_new_user(user_id, db_name):
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     
     cursor.execute("SELECT user_id FROM user_history WHERE user_id=?", (user_id,))
@@ -18,8 +18,8 @@ def add_new_user(user_id):
     
     conn.close()
 
-def check_and_add_word(word, user_id):
-    conn = sqlite3.connect('translator.db')
+def check_and_add_word(word, user_id, db_name):
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     
     # Check if the word is in the dictionary
@@ -48,8 +48,8 @@ def check_and_add_word(word, user_id):
     conn.close()
 
 
-def remember_word(word, user_id):
-    conn = sqlite3.connect('translator.db')
+def remember_word(word, user_id, db_name):
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
 
     # Check if the word is in the dictionary
