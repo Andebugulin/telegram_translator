@@ -27,3 +27,13 @@ def delete_word_from_history(user_id, word_id):
     
     conn.commit()
     conn.close()
+
+def delete_user(user_id):
+    conn = sqlite3.connect('translator.db')
+    cursor = conn.cursor()
+
+    # Delete the user's history from the user_history table
+    cursor.execute("DELETE FROM user_history WHERE user_id = ?", (user_id,))
+    
+    conn.commit()
+    conn.close()
