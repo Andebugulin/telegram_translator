@@ -1,20 +1,93 @@
-from aiogram.utils import executor
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from dotenv import load_dotenv
+import logging
+import os
+from .database.main import Database
+import asyncio
+from aiogram import  types, F
+from aiogram.filters.command import Command
+from aiogram.fsm.context import FSMContext
+from .states_dir.statesform import StepsForm
+import random
+from .markups_dir.markups import *
 
-from bot.filters import register_all_filters
-from bot.misc import TgKeys
-from bot.handlers import register_all_handlers
-from bot.database.models import register_models
+dp = Dispatcher()
 
 
-async def __on_start_up(dp: Dispatcher) -> None:
-    register_all_filters(dp)
-    register_all_handlers(dp)
-    register_models()
+@dp.message(Command("start", "restart"))
+async def cmd_start(message: types.Message, state: FSMContext) -> None:
+    global message_id
+    chat_id = message.from_user.id 
+    message_id = message.message_id
+    CONSOLE = f'''\n 
+                        CONSOLE: start\n
+                        STATE: Menu\n
+                        CHAT_ID: {chat_id}\n
+               '''
+    print(CONSOLE)
 
+    db.add_new_user(user_id=chat_id)
+    await state.set_state(StepsForm.MENU)
+
+    markup = custom_markup_for_the_menu()
+
+    await bot.send_message(chat_id, "Menu: \nWhat do you want to do, sir?", reply_markup=markup, parse_mode='HTML', disable_notification=True)
+
+@dp.message(F.text.lower().strip() == 'deactivate')
+async def deactivate_account(message: types.Message, state: FSMContext) -> None: 
+
+    if await state.get_state() == StepsForm.MENU:        
+        chat_id = message.from_user.id
+        CONSOLE = f'''\n 
+                        CONSOLE: !DEACTIVATE! account\n
+                        CHAT_ID: {chat_id}\n
+               '''
+        print(CONSOLE)
+            
+        markup = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[[KeyboardButton(text='/start')]], one_time_keyboard=False)
+        db.delete_user(user_id=chat_id)
+        
+        await bot.send_message(chat_id, "<code> Sir, your account, OH NOO, SIR\n\n IT's successfully gone</code>", reply_markup=markup, parse_mode='HTML', disable_notification=True)
+
+@dp.message(F.text.lower().strip() == 'translate')
+async def deactivate_account(message: types.Message, state: FSMContext) -> None: 
+
+    if await state.get_state() == StepsForm.MENU:        
+        chat_id = message.from_user.id
+        CONSOLE = f'''\n 
+                        CONSOLE: Go to translate scope\n
+                        STATE: Translate\n
+                        CHAT_ID: {chat_id}\n
+               '''
+        print(CONSOLE)
+        await state.set_state(StepsForm.TRANSLATING)
+        markup = custom_markup_for_the_translation()
+        
+        await bot.send_message(chat_id, "Sir, now, you can type words or sentences, that will be translated", reply_markup=markup, parse_mode='HTML', disable_notification=True)
 
 def start_bot():
-    bot = Bot(token=TgKeys.TOKEN, parse_mode='HTML')
-    dp = Dispatcher(bot, storage=MemoryStorage())
-    executor.start_polling(dp, skip_updates=True, on_startup=__on_start_up)
+    # loading env, 
+    # you can create .env file and put there your 'BOT_TOKEN' variable
+    load_dotenv()
+
+    # logging helps to check follow whether everything is working properly.
+    logging.basicConfig(level=logging.INFO)#, filename='logs.log')
+
+    # Initialize your Telegram Bot Token
+    # ! don't you ever put a token to the code !!!!!!
+    bot_token = str(os.getenv("BOT_TOKEN"))
+
+    # Initialize the bot as a global variable
+    global bot
+    bot = Bot(token=bot_token)
+
+    # Start the dispatcher
+    global dp, db
+
+    db = Database(db_name='database.db')
+    db.initialize_database()
+    asyncio.run(dp.start_polling(bot))
+
+    
+
+

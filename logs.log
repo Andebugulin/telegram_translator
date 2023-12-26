@@ -1,0 +1,6 @@
+INFO:aiogram.dispatcher:Start polling
+INFO:aiogram.dispatcher:Run polling for bot @translatemepls_bot id=6832196211 - 'translevaniya'
+INFO:aiogram.event:Update id=805930965 is not handled. Duration 0 ms by bot id=6832196211
+WARNING:aiogram.dispatcher:Received SIGINT signal
+INFO:aiogram.dispatcher:Polling stopped for bot @translatemepls_bot id=6832196211 - 'translevaniya'
+INFO:aiogram.dispatcher:Polling stopped

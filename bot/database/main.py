@@ -29,4 +29,4 @@ class Database:
 
     def retrieve_user_history(self, user_id):
         retrieve_user_history(user_id=user_id, db_name=self.db_name)
-
+        
