@@ -21,7 +21,7 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
     message_id = message.message_id
     CONSOLE = f'''\n 
                         CONSOLE: start\n
-                        STATE: Menu\n
+                        STATE: MENU\n
                         CHAT_ID: {chat_id}\n
                '''
     print(CONSOLE)
@@ -56,7 +56,7 @@ async def deactivate_account(message: types.Message, state: FSMContext) -> None:
         chat_id = message.from_user.id
         CONSOLE = f'''\n 
                         CONSOLE: Go to translate scope\n
-                        STATE: Translate\n
+                        STATE: TRANSLATING\n
                         CHAT_ID: {chat_id}\n
                '''
         print(CONSOLE)
@@ -64,6 +64,64 @@ async def deactivate_account(message: types.Message, state: FSMContext) -> None:
         markup = custom_markup_for_the_translation()
         
         await bot.send_message(chat_id, "Sir, now, you can type words or sentences, that will be translated", reply_markup=markup, parse_mode='HTML', disable_notification=True)
+
+@dp.message(F.text.lower().strip() == 'history')
+async def deactivate_account(message: types.Message, state: FSMContext) -> None: 
+
+    if await state.get_state() == StepsForm.TRANSLATING:        
+        chat_id = message.from_user.id
+        CONSOLE = f'''\n 
+                        CONSOLE: Go to History scope\n
+                        STATE: HISTORY\n
+                        CHAT_ID: {chat_id}\n
+               '''
+        print(CONSOLE)
+        await state.set_state(StepsForm.HISTORY)
+        markup = custom_markup_for_the_menu() # wrong one, for testing purposes
+        
+        await bot.send_message(chat_id, "Sir, now, you can type words or sentences, that will be translated", reply_markup=markup, parse_mode='HTML', disable_notification=True)
+
+@dp.message(F.text.lower().strip() == 'back')
+async def deactivate_account(message: types.Message, state: FSMContext) -> None: 
+
+    if await state.get_state() == StepsForm.HISTORY:        
+        chat_id = message.from_user.id
+        CONSOLE = f'''\n 
+                        CONSOLE: Go back to TRANSLATING\n
+                        STATE: TRANSLATING\n
+                        CHAT_ID: {chat_id}\n
+               '''
+        print(CONSOLE)
+        await state.set_state(StepsForm.TRANSLATING)
+        markup = custom_markup_for_the_translation()
+        
+        await bot.send_message(chat_id, "Sir, now, you can type words or sentences, that will be translated", reply_markup=markup, parse_mode='HTML', disable_notification=True)
+   
+    elif await state.get_state() == StepsForm.TRANSLATING:        
+        chat_id = message.from_user.id
+        CONSOLE = f'''\n 
+                        CONSOLE: Go back to MENU\n
+                        STATE: MENU\n
+                        CHAT_ID: {chat_id}\n
+               '''
+        print(CONSOLE)
+        await state.set_state(StepsForm.MENU)
+        markup = custom_markup_for_the_menu()
+        
+        await bot.send_message(chat_id, "Sir, what do you want to do?", reply_markup=markup, parse_mode='HTML', disable_notification=True)
+    
+    elif await state.get_state() == StepsForm.WORD:        
+        chat_id = message.from_user.id
+        CONSOLE = f'''\n 
+                        CONSOLE: Go back to HISTORY\n
+                        STATE: HISTORY\n
+                        CHAT_ID: {chat_id}\n
+               '''
+        print(CONSOLE)
+        await state.set_state(StepsForm.HISTORY)
+        markup = custom_markup_for_the_menu() # wrong one, for testing purposes
+        
+        await bot.send_message(chat_id, "Sir, you can see your full history here, choose the word you want to delete", reply_markup=markup, parse_mode='HTML', disable_notification=True)
 
 def start_bot():
     # loading env, 
