@@ -4,6 +4,9 @@ import json
 import random
 
 
+def clear_word(word):
+    return word.strip()
+
 # Function to add a new user if they don't exist
 def add_new_user(user_id, db_name):
     conn = sqlite3.connect(db_name)
@@ -18,17 +21,19 @@ def add_new_user(user_id, db_name):
     
     conn.close()
 
-def check_and_add_word(word, user_id, db_name):
+def check_and_add_word(word, user_id, to_language, from_language, db_name): # TODO: add to_language and from_language
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
+    word = clear_word(word)
+
     
     # Check if the word is in the dictionary
-    cursor.execute("SELECT word_id FROM dictionary WHERE word_id=?", (word,))
+    cursor.execute("SELECT word_id FROM dictionary WHERE word_id=? AND to_language=? AND from_language=?", (word, to_language, from_language))
     word_id = cursor.fetchone()
     
     # If the word doesn't exist, add it to the dictionary
     if not word_id:
-        cursor.execute("INSERT INTO dictionary (word_id) VALUES (?)", (word,))
+        cursor.execute("INSERT INTO dictionary (word_id, to_language, from_language) VALUES (?, ?, ?)", (word, to_language, from_language))
         conn.commit()
         word_id = cursor.lastrowid
     
@@ -39,7 +44,10 @@ def check_and_add_word(word, user_id, db_name):
     
     if history:
         history = json.loads(history[0])
-        history.append(word_id)
+        history[word_id] = {'date': datetime.datetime.now().strftime('%Y-%m-%d'),
+                            'word': word,
+                            'to_language': to_language,
+                            'from_language': from_language}
         cursor.execute("UPDATE user_history SET history=? WHERE user_id=?", (json.dumps(history), user_id))
     else:
         cursor.execute("INSERT INTO user_history (user_id, history) VALUES (?, ?)", (user_id, json.dumps([word_id])))
@@ -48,12 +56,13 @@ def check_and_add_word(word, user_id, db_name):
     conn.close()
 
 
-def remember_word(word, user_id, db_name):
+def remember_word(word, user_id, to_language, from_language, db_name):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
+    word = clear_word(word)
 
     # Check if the word is in the dictionary
-    cursor.execute("SELECT word_id FROM dictionary WHERE word_id=?", (word,))
+    cursor.execute("SELECT word_id FROM dictionary WHERE word_id=? AND to_language=? AND from_language=?", (word, to_language, from_language))
     word_id = cursor.fetchone()
 
     if not word_id:

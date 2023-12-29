@@ -27,14 +27,14 @@ def check_history_expiration(user_id, db_name):
 
                 else:
                     break
-                    
+
     cursor.execute("UPDATE user_history SET history=? WHERE user_id=?", (json.dumps(history), user_id))
     conn.commit()
     conn.close()
     
 
 
-def delete_word_from_history(user_id, word_id, db_name):
+def delete_word_from_history(user_id, word_id, to_language, from_language, db_name): # TODO: add to_language and from_language
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     
