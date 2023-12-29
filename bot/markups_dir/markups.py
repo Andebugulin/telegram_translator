@@ -15,18 +15,21 @@ def custom_markup_for_the_menu() -> ReplyKeyboardMarkup:
 
     return markup
 
-def custom_markup_for_the_translation() -> ReplyKeyboardMarkup:
+def custom_markup_for_the_translation(from_language, to_language) -> ReplyKeyboardMarkup:
     CONSOLE = '\n CONSOLE: custom_markup_for_the_translation was used\n'
     print(CONSOLE)
     
 
     history_account_btn = KeyboardButton(text="History")
+    from_language_btn = KeyboardButton(text=f"{from_language}")
+    to_language_btn = KeyboardButton(text=f"{to_language}")
     back_activity_btn = KeyboardButton(text="back")
 
     first_row = [history_account_btn]
-    second_row = [back_activity_btn]
+    second_row = [from_language_btn, to_language_btn]
+    third_row = [back_activity_btn]
     
-    key_board = [first_row, second_row]
+    key_board = [first_row, second_row, third_row]
 
     markup = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=key_board, one_time_keyboard=False)
 

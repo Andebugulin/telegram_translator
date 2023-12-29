@@ -33,8 +33,6 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
     print(db.retrieve_user_history(user_id=chat_id))
     db.remember_word(user_id=chat_id, word='meaw', to_language='eng', from_language='rus')
     time.sleep(2)
-    db.remember_word(user_id=chat_id, word='meaw', to_language='rus', from_language='eng')
-    time.sleep(2)
     
     await bot.send_message(chat_id, "Testing ended", parse_mode='HTML', disable_notification=True)
 
@@ -55,7 +53,6 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
     await state.set_state(StepsForm.MENU)
 
     markup = custom_markup_for_the_menu()
-
     await bot.send_message(chat_id, "Menu: \nWhat do you want to do, sir?", reply_markup=markup, parse_mode='HTML', disable_notification=True)
 
 @dp.message(F.text.lower().strip() == 'deactivate')

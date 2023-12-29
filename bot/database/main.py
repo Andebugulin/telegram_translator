@@ -1,7 +1,7 @@
 from .methods.create import initialize_database
 from .methods.delete import delete_word_from_history, delete_user
 from .methods.update import add_new_user, check_and_add_word, remember_word
-from .methods.get import retrieve_user_history
+from .methods.get import retrieve_user_history, get_from_language, get_to_language
 
 import sqlite3
 
@@ -29,4 +29,10 @@ class Database:
 
     def retrieve_user_history(self, user_id):
         return retrieve_user_history(user_id=user_id, db_name=self.db_name)
+    
+    def get_to_language(self, user_id):
+        return get_to_language(user_id=user_id, db_name=self.db_name)
+    
+    def get_from_language(self, user_id):
+        return get_from_language(user_id=user_id, db_name=self.db_name)
         
