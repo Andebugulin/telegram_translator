@@ -1,5 +1,37 @@
 import sqlite3
+import datetime
 import json
+
+
+def check_history_expiration(user_id, db_name):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT history FROM user_history WHERE user_id=?", (user_id,))
+    history = cursor.fetchone()
+
+    if history:
+        for key, values in history.iteritems():
+            if values['date']:
+                # Convert the date string to a datetime object
+                date = datetime.datetime.strptime(values['date'], '%Y-%m-%d')
+                
+                # Calculate the difference between today and the saved date
+                now = datetime.datetime.now()
+                difference = now - date
+
+                # Check if it has been 15 days since the word was last reviewed
+                if difference.days >= 15:
+                    # Delete the word from the history
+                    del history[key]
+
+                else:
+                    break
+                    
+    cursor.execute("UPDATE user_history SET history=? WHERE user_id=?", (json.dumps(history), user_id))
+    conn.commit()
+    conn.close()
+    
 
 
 def delete_word_from_history(user_id, word_id, db_name):
@@ -11,8 +43,8 @@ def delete_word_from_history(user_id, word_id, db_name):
     
     if history:
         history = json.loads(history[0])
-        if word_id in history:
-            history.remove(word_id)
+        if word_id in history.keys():
+            del history[word_id]        
             cursor.execute("UPDATE user_history SET history=? WHERE user_id=?", (json.dumps(history), user_id))
     
     # Remove the word from recalling dates
