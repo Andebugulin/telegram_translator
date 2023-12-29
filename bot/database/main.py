@@ -10,23 +10,23 @@ class Database:
         self.db_name = db_name  
 
     def initialize_database(self):
-        initialize_database(db_name=self.db_name)
+        return initialize_database(db_name=self.db_name)
 
     def delete_word_from_history(self, user_id, word_id):
-        delete_word_from_history(user_id=user_id, word_id=word_id, db_name=self.db_name)
+        return delete_word_from_history(user_id=user_id, word_id=word_id, db_name=self.db_name)
 
     def delete_user(self, user_id):
-        delete_user(user_id=user_id, db_name=self.db_name)
+        return delete_user(user_id=user_id, db_name=self.db_name)
 
     def add_new_user(self, user_id):
-        add_new_user(user_id=user_id, db_name=self.db_name)
+        return add_new_user(user_id=user_id, db_name=self.db_name)
 
-    def check_and_add_word(self, user_id, word):
-        check_and_add_word(user_id=user_id, word=word, db_name=self.db_name)
+    def check_and_add_word(self, user_id, word, to_language, from_language): # TODO: add to_language and from_language
+        return check_and_add_word(user_id=user_id, word=word, db_name=self.db_name, to_language=to_language, from_language=from_language)
 
-    def remember_word(self, user_id, word):
-        remember_word(user_id=user_id, word=word, db_name=self.db_name)
+    def remember_word(self, user_id, word, to_language, from_language):
+        return remember_word(user_id=user_id, word=word, db_name=self.db_name, to_language=to_language, from_language=from_language)
 
     def retrieve_user_history(self, user_id):
-        retrieve_user_history(user_id=user_id, db_name=self.db_name)
+        return retrieve_user_history(user_id=user_id, db_name=self.db_name)
         

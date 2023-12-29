@@ -10,8 +10,33 @@ from aiogram.fsm.context import FSMContext
 from .states_dir.statesform import StepsForm
 import random
 from .markups_dir.markups import *
+import time
 
 dp = Dispatcher()
+
+@dp.message(F.text.lower().strip() == 'test')
+async def cmd_start(message: types.Message, state: FSMContext) -> None:
+    global message_id
+    chat_id = message.from_user.id 
+    message_id = message.message_id
+    CONSOLE = f'''\n 
+                        CONSOLE: TESTING\n
+                        STATE: -\n
+                        CHAT_ID: {chat_id}\n
+               '''
+    print(CONSOLE)
+
+    db.add_new_user(user_id=chat_id)
+    time.sleep(3)
+    db.check_and_add_word(user_id=chat_id, word='meaw', to_language='eng', from_language='rus')
+    time.sleep(2)
+    print(db.retrieve_user_history(user_id=chat_id))
+    db.remember_word(user_id=chat_id, word='meaw', to_language='eng', from_language='rus')
+    time.sleep(2)
+    db.remember_word(user_id=chat_id, word='meaw', to_language='rus', from_language='eng')
+    time.sleep(2)
+    
+    await bot.send_message(chat_id, "Testing ended", parse_mode='HTML', disable_notification=True)
 
 
 @dp.message(Command("start", "restart"))

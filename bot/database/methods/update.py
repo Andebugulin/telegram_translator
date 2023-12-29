@@ -16,7 +16,7 @@ def add_new_user(user_id, db_name):
     existing_user = cursor.fetchone()
     
     if not existing_user:
-        cursor.execute("INSERT INTO user_history (user_id, history, recalling_dates) VALUES (?, ?, ?)", (user_id, json.dumps([]), json.dumps({})))
+        cursor.execute("INSERT INTO user_history (user_id, history, recalling_dates) VALUES (?, ?, ?)", (user_id, json.dumps({}), json.dumps({})))
         conn.commit()
     
     conn.close()
@@ -28,29 +28,38 @@ def check_and_add_word(word, user_id, to_language, from_language, db_name): # TO
 
     
     # Check if the word is in the dictionary
-    cursor.execute("SELECT word_id FROM dictionary WHERE word_id=? AND to_language=? AND from_language=?", (word, to_language, from_language))
+    cursor.execute("SELECT word_id FROM dictionary WHERE word=? AND to_language=? AND from_language=?", (word, to_language, from_language))
     word_id = cursor.fetchone()
     
     # If the word doesn't exist, add it to the dictionary
     if not word_id:
-        cursor.execute("INSERT INTO dictionary (word_id, to_language, from_language) VALUES (?, ?, ?)", (word, to_language, from_language))
+        # Assuming word, to_language, and from_language are variables holding the respective values
+        cursor.execute("INSERT INTO dictionary (word, to_language, from_language) VALUES (?, ?, ?)", (word, to_language, from_language))
         conn.commit()
         word_id = cursor.lastrowid
-    
+
+    print(type(word_id))
+    print(word_id)
+    try:
+        word_id = word_id[0]
+        print(word_id)
+    except:
+        pass
+    word_id = str(word_id)
     # Add the word to user history
     user_id = user_id  
     cursor.execute("SELECT history FROM user_history WHERE user_id=?", (user_id,))
-    history = cursor.fetchone()
+    history = cursor.fetchone()[0]
     
-    if history:
-        history = json.loads(history[0])
+    history = json.loads(history)
+    if word_id not in history.keys():
         history[word_id] = {'date': datetime.datetime.now().strftime('%Y-%m-%d'),
                             'word': word,
                             'to_language': to_language,
                             'from_language': from_language}
+        print(json.dumps(history))
         cursor.execute("UPDATE user_history SET history=? WHERE user_id=?", (json.dumps(history), user_id))
-    else:
-        cursor.execute("INSERT INTO user_history (user_id, history) VALUES (?, ?)", (user_id, json.dumps([word_id])))
+        
     
     conn.commit()
     conn.close()
@@ -62,19 +71,19 @@ def remember_word(word, user_id, to_language, from_language, db_name):
     word = clear_word(word)
 
     # Check if the word is in the dictionary
-    cursor.execute("SELECT word_id FROM dictionary WHERE word_id=? AND to_language=? AND from_language=?", (word, to_language, from_language))
+    cursor.execute("SELECT word_id FROM dictionary WHERE word=? AND to_language=? AND from_language=?", (word, to_language, from_language))
     word_id = cursor.fetchone()
 
     if not word_id:
         conn.commit()
         conn.close()
         return
-    
+    word_id = word_id[0]
     cursor.execute("SELECT recalling_dates FROM user_history WHERE user_id=?", (user_id,))
     recalling_dates = cursor.fetchone()
     recalling_dates = json.loads(recalling_dates[0]) if recalling_dates else {}
     
-    recalling_dates[word_id] = generate_times()
+    recalling_dates[word_id] = [time.isoformat() for time in generate_times()]
     cursor.execute("UPDATE user_history SET recalling_dates=? WHERE user_id=?", (json.dumps(recalling_dates), user_id))
     
     conn.commit()

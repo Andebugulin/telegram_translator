@@ -14,6 +14,8 @@ def initialize_database(db_name):
 
     conn.execute('''CREATE TABLE IF NOT EXISTS dictionary (
                     word_id INTEGER PRIMARY KEY,
+                    word TEXT,
+                    translation TEXT,
                     from_language TEXT, 
                     to_language TEXT
                     )''')
